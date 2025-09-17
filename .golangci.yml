@@ -1,5 +1,7 @@
 # プロジェクト共通のgolangci-lint設定。Go 1.25.1に合わせた推奨構成。
 # 主に静的解析の品質とフォーマッタ統一を両立させる。
+version: 2
+
 run:
   go: "1.25"
   timeout: 5m
@@ -19,24 +21,16 @@ linters:
   disable-all: true
   enable:
     - errcheck
-    - gofumpt
-    - goimports
-    - gosimple
     - govet
     - gocyclo
     - ineffassign
     - nolintlint
     - revive
     - staticcheck
-    - typecheck
     - unconvert
     - unused
 
 linters-settings:
-  gofumpt:
-    extra-rules: true
-  goimports:
-    local-prefixes: datadoggo-go-v2
   gocyclo:
     min-complexity: 15
   nolintlint:
