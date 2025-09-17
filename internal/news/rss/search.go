@@ -6,14 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
-	"runtime"
 	"sort"
 	"strings"
 
 	"datadoggo-go-v2/internal/infra"
 )
 
-var rssLinkFilePath = defaultRssLinkFilePath()
+const rssLinkFilePath = "link.yml"
 
 // SearchRssLinks はlink.ymlを読み込み、クエリ条件に一致するRSSリンクを返す。
 func SearchRssLinks(query *RssLinkQuery) ([]RssLink, error) {
@@ -50,9 +49,12 @@ func LoadRssLinks(filePath string) ([]RssLink, error) {
 	}
 
 	normalizedPath := filepath.Clean(filePath)
-	content, err := infra.LoadFile(normalizedPath)
+	content, err := infra.LoadLocalFile(normalizedPath)
 	if err != nil {
-		return nil, fmt.Errorf("RSSリンクファイルの読み込みに失敗: %w", err)
+		content, err = infra.LoadFile(normalizedPath)
+		if err != nil {
+			return nil, fmt.Errorf("RSSリンクファイルの読み込みに失敗: %w", err)
+		}
 	}
 
 	scanner := bufio.NewScanner(bytes.NewReader(content))
@@ -119,13 +121,4 @@ func LoadRssLinks(filePath string) ([]RssLink, error) {
 func countLeadingSpaces(line string) int {
 	trimmed := strings.TrimLeft(line, " ")
 	return len(line) - len(trimmed)
-}
-
-// defaultRssLinkFilePath はこのファイルと同一ディレクトリのlink.ymlへの絶対パスを返す。
-func defaultRssLinkFilePath() string {
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		return filepath.Join(".", "link.yml")
-	}
-	return filepath.Join(filepath.Dir(filename), "link.yml")
 }

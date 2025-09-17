@@ -1,10 +1,6 @@
 package infra
 
-import (
-	"path/filepath"
-	"runtime"
-	"testing"
-)
+import "testing"
 
 // TestLoadFile はファイル読み込みユーティリティの基本動作を検証する。
 // 目的: 既存の設定ファイルが正常に読み込めることと、存在しないパスでエラーになることを担保する。
@@ -16,15 +12,22 @@ func TestLoadFile(t *testing.T) {
 
 	t.Run("正常系", func(t *testing.T) {
 		t.Parallel()
-		_, filename, _, ok := runtime.Caller(0)
-		if !ok {
-			t.Fatal("runtime.Caller に失敗しました")
-		}
-		baseDir := filepath.Dir(filename)
-		path := filepath.Join(baseDir, "..", "news", "rss", "link.yml")
+		path := "internal/news/rss/link.yml"
 		data, err := LoadFile(path)
 		if err != nil {
 			t.Fatalf("LoadFile(%s) でエラー: %v", path, err)
+		}
+		if len(data) == 0 {
+			t.Fatal("読み込んだデータが空です")
+		}
+	})
+
+	t.Run("呼び出し元相対パス", func(t *testing.T) {
+		t.Parallel()
+		path := "../news/rss/link.yml"
+		data, err := LoadLocalFile(path)
+		if err != nil {
+			t.Fatalf("LoadLocalFile(%s) でエラー: %v", path, err)
 		}
 		if len(data) == 0 {
 			t.Fatal("読み込んだデータが空です")
