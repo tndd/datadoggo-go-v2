@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-    "strings"
+	"strings"
 )
 
 const maxCallerDepth = 16
@@ -49,10 +49,10 @@ func resolveFromCaller(relative string) (string, error) {
 			break
 		}
 
-        // 自身（このパッケージ）の内部からの呼び出しはスキップする
-        if strings.HasSuffix(callerFile, "internal/infra/file/loader.go") {
-            continue
-        }
+		// 自身（このパッケージ）の内部からの呼び出しはスキップする
+		if strings.HasSuffix(callerFile, "internal/infra/file/loader.go") {
+			continue
+		}
 
 		baseDir := filepath.Dir(callerFile)
 		candidate := filepath.Join(baseDir, relative)
@@ -69,7 +69,12 @@ func readFile(absolutePath string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("ファイルのオープンに失敗しました: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			// ログ出力などでエラーを処理することもできるが、
+			// 読み込み処理のエラーの方が重要なので、現状は無視
+		}
+	}()
 
 	data, err := io.ReadAll(file)
 	if err != nil {

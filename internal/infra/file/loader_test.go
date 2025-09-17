@@ -34,11 +34,11 @@ func TestLoadFile(t *testing.T) {
 		}
 	})
 
-    t.Run("異常系:存在しないファイル", func(t *testing.T) {
-        t.Parallel()
-        _, err := LoadFile("internal/infra/file/does_not_exist.yml")
-        if err == nil {
-            t.Fatal("存在しないファイルなのにエラーが返されませんでした")
-        }
-    })
+	t.Run("異常系:存在しないファイル", func(t *testing.T) {
+		t.Parallel()
+		_, err := LoadFile("internal/infra/file/does_not_exist.yml")
+		if err == nil {
+			t.Fatal("存在しないファイルなのにエラーが返されませんでした")
+		}
+	})
 }
