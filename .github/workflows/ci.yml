@@ -14,6 +14,24 @@ env:
   GOFLAGS: -buildvcs=false
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: コードを取得
+        uses: actions/checkout@v4
+
+      - name: Goをセットアップ
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+
+      - name: golangci-lintを実行
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60  # 最新バージョンを指定（適宜更新）
+          args: --config=.golangci.yml  # .golangci.yml を使用
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -29,5 +47,14 @@ jobs:
       - name: 依存関係を取得
         run: go mod download
 
-      - name: テストを実行
-        run: go test ./...
+      - name: ビルドを実行
+        run: go build ./...
+
+      - name: テストを実行（カバレッジ付き）
+        run: go test -v -coverprofile=coverage.out ./...
+
+      - name: 'カバレッジレポートをアップロード（オプション: Codecov使用）'
+        uses: codecov/codecov-action@v4
+        with:
+          file: coverage.out
+          token: ${{ secrets.CODECOV_TOKEN }}  # Codecovトークンをシークレットに設定
