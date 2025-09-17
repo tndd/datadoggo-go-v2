@@ -1,0 +1,6 @@
+bbc:
+  top: https://feeds.bbci.co.uk/news/rss.xml
+  world: https://feeds.bbci.co.uk/news/world/rss.xml
+
+cbs:
+  us: https://www.cbsnews.com/latest/rss/us
