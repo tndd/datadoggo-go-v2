@@ -1,9 +1,9 @@
-# プロジェクト共通のgolangci-lint設定。Go 1.25.1に合わせた推奨構成。
+# プロジェクト共通のgolangci-lint設定。Go 1.23に合わせた推奨構成。
 # 主に静的解析の品質とフォーマッタ統一を両立させる。
 version: 2
 
 run:
-  go: "1.25"
+  go: "1.23"
   timeout: 5m
   modules-download-mode: readonly
   tests: true
@@ -56,7 +56,7 @@ linters-settings:
           - allowComments
       - name: blank-imports
   staticcheck:
-    go: "1.25"
+    go: "1.23"
   errcheck:
     check-type-assertions: true
     check-blank: true
