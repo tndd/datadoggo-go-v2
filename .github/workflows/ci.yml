@@ -29,5 +29,11 @@ jobs:
       - name: 依存関係を取得
         run: go mod download
 
+      - name: golangci-lintを実行
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          args: --config=.golangci.yml --timeout=5m --out-format=github-actions
+
       - name: テストを実行
         run: go test ./...
