@@ -24,7 +24,7 @@ func TestLoadFile(t *testing.T) {
 
 	t.Run("正常系:呼び出し元相対パス", func(t *testing.T) {
 		t.Parallel()
-		path := "./file_test.go"
+		path := "./loader_test.go"
 		data, err := LoadFile(path)
 		if err != nil {
 			t.Fatalf("LoadFile(%s) でエラー: %v", path, err)

@@ -50,7 +50,7 @@ func resolveFromCaller(relative string) (string, error) {
 		}
 
         // 自身（このパッケージ）の内部からの呼び出しはスキップする
-        if strings.HasSuffix(callerFile, "internal/infra/file/file.go") {
+        if strings.HasSuffix(callerFile, "internal/infra/file/loader.go") {
             continue
         }
 
