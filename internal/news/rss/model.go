@@ -1,14 +1,15 @@
+// Package rss はRSSフィード関連の型定義を提供する。
 package rss
 
-// RssLink はRSSフィードのリンクとその分類情報を表す。
-type RssLink struct {
+// Link はRSSフィードのリンクとその分類情報を表す。
+type Link struct {
 	Group string
 	Name  string
 	URL   string
 }
 
-// RssLinkQuery はRSSリンクを検索するときのフィルター条件。
-type RssLinkQuery struct {
+// LinkQuery はRSSリンクを検索するときのフィルター条件。
+type LinkQuery struct {
 	Group *string
 	Name  *string
 }
