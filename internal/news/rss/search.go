@@ -5,14 +5,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"path/filepath"
 	"sort"
 	"strings"
 
 	"datadoggo-go-v2/internal/infra"
 )
 
-const rssLinkFilePath = "link.yml"
+const rssLinkFilePath = "./link.yml"
 
 // SearchRssLinks はlink.ymlを読み込み、クエリ条件に一致するRSSリンクを返す。
 func SearchRssLinks(query *RssLinkQuery) ([]RssLink, error) {
@@ -48,13 +47,9 @@ func LoadRssLinks(filePath string) ([]RssLink, error) {
 		return nil, errors.New("ファイルパスが空です")
 	}
 
-	normalizedPath := filepath.Clean(filePath)
-	content, err := infra.LoadLocalFile(normalizedPath)
+	content, err := infra.LoadFile(filePath)
 	if err != nil {
-		content, err = infra.LoadFile(normalizedPath)
-		if err != nil {
-			return nil, fmt.Errorf("RSSリンクファイルの読み込みに失敗: %w", err)
-		}
+		return nil, fmt.Errorf("RSSリンクファイルの読み込みに失敗: %w", err)
 	}
 
 	scanner := bufio.NewScanner(bytes.NewReader(content))

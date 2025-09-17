@@ -24,10 +24,10 @@ func TestLoadFile(t *testing.T) {
 
 	t.Run("呼び出し元相対パス", func(t *testing.T) {
 		t.Parallel()
-		path := "../news/rss/link.yml"
-		data, err := LoadLocalFile(path)
+		path := "./file_test.go"
+		data, err := LoadFile(path)
 		if err != nil {
-			t.Fatalf("LoadLocalFile(%s) でエラー: %v", path, err)
+			t.Fatalf("LoadFile(%s) でエラー: %v", path, err)
 		}
 		if len(data) == 0 {
 			t.Fatal("読み込んだデータが空です")

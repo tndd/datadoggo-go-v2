@@ -6,21 +6,29 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 const maxCallerDepth = 16
 
 var projectRoot = detectProjectRoot()
 
-// LoadFile はプロジェクトルートを起点にファイルを解決して読み込む。
-// 目的: 既存のloaderの互換性を保ちつつ、明示的なプロジェクト相対パスでアクセスできるようにする。
+// LoadFile はファイルパス文字列を解析して対象ファイルを読み込む。
+// 目的: "./" で始まる場合は呼び出し元ファイルを基準に、それ以外はプロジェクトルート起点での解決を提供する。
 func LoadFile(path string) ([]byte, error) {
 	if path == "" {
 		return nil, fmt.Errorf("ファイルパスが空です")
 	}
 
-	normalizedPath := filepath.Clean(path)
+	if strings.HasPrefix(path, "./") {
+		localPath, err := resolveFromCaller(path[2:])
+		if err != nil {
+			return nil, err
+		}
+		return readFile(localPath)
+	}
 
+	normalizedPath := filepath.Clean(path)
 	if !filepath.IsAbs(normalizedPath) {
 		base := projectRoot
 		if base == "" {
@@ -32,14 +40,8 @@ func LoadFile(path string) ([]byte, error) {
 	return readFile(normalizedPath)
 }
 
-// LoadLocalFile は呼び出し元ファイルからの相対パスでファイルを読み込む。
-// 目的: 各モジュールが自分のディレクトリを基準に設定/モックファイルへアクセスできるようにする。
-func LoadLocalFile(relativePath string) ([]byte, error) {
-	if relativePath == "" {
-		return nil, fmt.Errorf("ファイルパスが空です")
-	}
-
-	normalizedPath := filepath.Clean(relativePath)
+func resolveFromCaller(relative string) (string, error) {
+	relative = filepath.Clean(relative)
 
 	for depth := 1; depth <= maxCallerDepth; depth++ {
 		_, callerFile, _, ok := runtime.Caller(depth)
@@ -47,14 +49,19 @@ func LoadLocalFile(relativePath string) ([]byte, error) {
 			break
 		}
 
+		// file.go内部からの呼び出しはスキップする
+		if strings.HasSuffix(callerFile, "internal/infra/file.go") {
+			continue
+		}
+
 		baseDir := filepath.Dir(callerFile)
-		candidate := filepath.Join(baseDir, normalizedPath)
+		candidate := filepath.Join(baseDir, relative)
 		if fileExists(candidate) {
-			return readFile(candidate)
+			return candidate, nil
 		}
 	}
 
-	return nil, fmt.Errorf("呼び出し元からの相対パス解決に失敗しました: %s", relativePath)
+	return "", fmt.Errorf("呼び出し元からの相対パス解決に失敗しました: ./%s", relative)
 }
 
 func readFile(absolutePath string) ([]byte, error) {
