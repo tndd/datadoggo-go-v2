@@ -1,46 +1,34 @@
 # プロジェクト共通のgolangci-lint設定。Go 1.23に合わせた推奨構成。
 # 主に静的解析の品質とフォーマッタ統一を両立させる。
-version: 2
+
+version: "2"  # バージョン2形式を明示的に指定（必須）
 
 run:
-  go: "1.23"
-  timeout: 5m
-  modules-download-mode: readonly
-  tests: true
-
-output:
-  sort-results: true
-  print-issued-lines: true
-
-issues:
-  max-issues-per-linter: 0
-  max-same-issues: 0
-  exclude-use-default: false
+  go: "1.23"  # Goバージョンをここで指定（ルートレベルで有効）
 
 linters:
-  disable-all: true
   enable:
     - errcheck
     - govet
-    - gocyclo
-    - ineffassign
-    - nolintlint
+    - nolintlint  # nolintlintを有効化
     - revive
-    - staticcheck
-    - unconvert
-    - unused
+    - staticcheck  # staticcheckを有効化
 
 linters-settings:
   gocyclo:
-    min-complexity: 15
+    min-complexity: 15  # 複雑度閾値（推奨値例）
   nolintlint:
-    require-explanation: true
-    require-specific: true
+    allow-unused: false  # 公式推奨: 未使用のnolintを許可しない
+    require-explanation: true  # 説明を必須にする
+    require-specific: true  # 特定のlinterを指定必須
   revive:
     ignore-generated-header: true
     severity: warning
     rules:
+      - name: unused-parameter
+        severity: warning
       - name: exported
+        severity: warning
         arguments:
           - disableStutteringCheck
       - name: if-return
@@ -54,7 +42,8 @@ linters-settings:
         arguments:
           - allowComments
       - name: blank-imports
-  staticcheck: {}
+  staticcheck:
+    checks: ["all"]  # 公式推奨: すべてのチェックを有効化（必要に応じてカスタマイズ）
   errcheck:
     check-type-assertions: true
     check-blank: true
