@@ -30,9 +30,9 @@ jobs:
         run: go mod download
 
       - name: golangci-lintを実行
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v8
         with:
-          version: v2.4.0
+          version: v2.1
           args: --config=.golangci.yml --timeout=5m
 
       - name: テストを実行
