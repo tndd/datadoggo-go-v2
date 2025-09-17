@@ -1,12 +1,9 @@
 package rss
 
 import (
-	"bufio"
-	"bytes"
 	"errors"
 	"fmt"
 	"sort"
-	"strings"
 
 	"datadoggo-go-v2/internal/infra"
 )
@@ -47,73 +44,15 @@ func LoadRssLinks(filePath string) ([]RssLink, error) {
 		return nil, errors.New("ファイルパスが空です")
 	}
 
-	content, err := infra.LoadFile(filePath)
+	entries, err := infra.LoadGroupedStringEntries(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("RSSリンクファイルの読み込みに失敗: %w", err)
 	}
 
-	scanner := bufio.NewScanner(bytes.NewReader(content))
-	var links []RssLink
-	var currentGroup string
-	lineNumber := 0
-
-	for scanner.Scan() {
-		lineNumber++
-		rawLine := scanner.Text()
-		trimmed := strings.TrimSpace(rawLine)
-
-		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
-			continue
-		}
-
-		indent := countLeadingSpaces(rawLine)
-		if indent == 0 {
-			if !strings.HasSuffix(trimmed, ":") {
-				return nil, fmt.Errorf("グループ行の形式が不正です (行番号:%d 行内容:%s)", lineNumber, rawLine)
-			}
-			group := strings.TrimSuffix(trimmed, ":")
-			group = strings.TrimSpace(group)
-			if group == "" {
-				return nil, fmt.Errorf("グループ名が空です (行番号:%d)", lineNumber)
-			}
-			currentGroup = group
-			continue
-		}
-
-		if indent != 2 {
-			return nil, fmt.Errorf("サポートしていないインデント幅です (行番号:%d インデント:%d)", lineNumber, indent)
-		}
-
-		if currentGroup == "" {
-			return nil, fmt.Errorf("グループ定義前に子要素があります (行番号:%d)", lineNumber)
-		}
-
-		if !strings.Contains(trimmed, ":") {
-			return nil, fmt.Errorf("名称とURLの区切りが見つかりません (行番号:%d 行内容:%s)", lineNumber, rawLine)
-		}
-
-		parts := strings.SplitN(trimmed, ":", 2)
-		name := strings.TrimSpace(parts[0])
-		url := strings.TrimSpace(parts[1])
-		if name == "" {
-			return nil, fmt.Errorf("名称が空です (行番号:%d)", lineNumber)
-		}
-		if url == "" {
-			return nil, fmt.Errorf("URLが空です (行番号:%d)", lineNumber)
-		}
-
-		links = append(links, RssLink{Group: currentGroup, Name: name, URL: url})
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("RSSリンクファイルの読み込み中にエラーが発生しました: %w", err)
+	links := make([]RssLink, 0, len(entries))
+	for _, entry := range entries {
+		links = append(links, RssLink{Group: entry.Group, Name: entry.Name, URL: entry.Value})
 	}
 
 	return links, nil
-}
-
-// countLeadingSpaces は行頭の半角スペース数を数えるヘルパー。
-func countLeadingSpaces(line string) int {
-	trimmed := strings.TrimLeft(line, " ")
-	return len(line) - len(trimmed)
 }
