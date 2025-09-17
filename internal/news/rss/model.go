@@ -18,6 +18,3 @@ func NewRssLinkQueryFromGroup(group string) RssLinkQuery {
 	g := group
 	return RssLinkQuery{Group: &g}
 }
-
-// RssLinkMap はYAML構造に対応するグループ→名称→URLのマップ。
-type RssLinkMap map[string]map[string]string

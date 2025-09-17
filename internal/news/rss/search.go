@@ -17,36 +17,34 @@ var rssLinkFilePath = defaultRssLinkFilePath()
 
 // SearchRssLinks はlink.ymlを読み込み、クエリ条件に一致するRSSリンクを返す。
 func SearchRssLinks(query *RssLinkQuery) ([]RssLink, error) {
-	rssMap, err := loadRssLinkMap(rssLinkFilePath)
+	links, err := LoadRssLinks(rssLinkFilePath)
 	if err != nil {
 		return nil, err
 	}
 
-	var links []RssLink
-	for group, nameMap := range rssMap {
-		if query != nil && query.Group != nil && group != *query.Group {
+	var filtered []RssLink
+	for _, link := range links {
+		if query != nil && query.Group != nil && link.Group != *query.Group {
 			continue
 		}
-		for name, url := range nameMap {
-			if query != nil && query.Name != nil && name != *query.Name {
-				continue
-			}
-			links = append(links, RssLink{Group: group, Name: name, URL: url})
+		if query != nil && query.Name != nil && link.Name != *query.Name {
+			continue
 		}
+		filtered = append(filtered, link)
 	}
 
-	sort.Slice(links, func(i, j int) bool {
-		if links[i].Group == links[j].Group {
-			return links[i].Name < links[j].Name
+	sort.Slice(filtered, func(i, j int) bool {
+		if filtered[i].Group == filtered[j].Group {
+			return filtered[i].Name < filtered[j].Name
 		}
-		return links[i].Group < links[j].Group
+		return filtered[i].Group < filtered[j].Group
 	})
 
-	return links, nil
+	return filtered, nil
 }
 
-// loadRssLinkMap はYAML形式(グループ→名称→URL)を手動で解析して返す。
-func loadRssLinkMap(filePath string) (RssLinkMap, error) {
+// LoadRssLinks はYAMLファイルを読み込み、RssLinkの配列として返す。
+func LoadRssLinks(filePath string) ([]RssLink, error) {
 	if filePath == "" {
 		return nil, errors.New("ファイルパスが空です")
 	}
@@ -58,7 +56,7 @@ func loadRssLinkMap(filePath string) (RssLinkMap, error) {
 	}
 
 	scanner := bufio.NewScanner(bytes.NewReader(content))
-	result := make(RssLinkMap)
+	var links []RssLink
 	var currentGroup string
 	lineNumber := 0
 
@@ -82,9 +80,6 @@ func loadRssLinkMap(filePath string) (RssLinkMap, error) {
 				return nil, fmt.Errorf("グループ名が空です (行番号:%d)", lineNumber)
 			}
 			currentGroup = group
-			if _, exists := result[group]; !exists {
-				result[group] = make(map[string]string)
-			}
 			continue
 		}
 
@@ -110,14 +105,14 @@ func loadRssLinkMap(filePath string) (RssLinkMap, error) {
 			return nil, fmt.Errorf("URLが空です (行番号:%d)", lineNumber)
 		}
 
-		result[currentGroup][name] = url
+		links = append(links, RssLink{Group: currentGroup, Name: name, URL: url})
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("RSSリンクファイルの読み込み中にエラーが発生しました: %w", err)
 	}
 
-	return result, nil
+	return links, nil
 }
 
 // countLeadingSpaces は行頭の半角スペース数を数えるヘルパー。

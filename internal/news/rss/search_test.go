@@ -59,34 +59,40 @@ func TestSearchRssLinks(t *testing.T) {
 	})
 }
 
-// TestLoadRssLinkMap はlink.ymlのパース処理を詳細に検証する。
+// TestLoadRssLinks はlink.ymlの読み込み処理を詳細に検証する。
 // 目的: 手動パーサーが単純なグループ→名称→URL構造を正しく読み取れることを担保する。
 // 観点:
 // - 既存ファイルの読み込みでエラーにならない
 // - 一部グループの名称とURLが想定通りに格納される
-func TestLoadRssLinkMap(t *testing.T) {
+func TestLoadRssLinks(t *testing.T) {
 	t.Parallel()
 
-	rssMap, err := loadRssLinkMap(rssLinkFilePath)
+	rssLinks, err := LoadRssLinks(rssLinkFilePath)
 	if err != nil {
-		t.Fatalf("loadRssLinkMap でエラー: %v", err)
+		t.Fatalf("LoadRssLinks でエラー: %v", err)
 	}
-	if len(rssMap) == 0 {
+	if len(rssLinks) == 0 {
 		t.Fatal("グループが1件も読み込めませんでした")
 	}
 
-	groupEntries, ok := rssMap["bbc"]
-	if !ok {
-		t.Fatal("bbc グループが見つかりません")
+	var found bool
+	want := RssLink{
+		Group: "bbc",
+		Name:  "world",
+		URL:   "https://feeds.bbci.co.uk/news/world/rss.xml",
 	}
 
-	url, ok := groupEntries["world"]
-	if !ok {
+	for _, link := range rssLinks {
+		if link.Group == want.Group && link.Name == want.Name {
+			if link.URL != want.URL {
+				t.Fatalf("bbc/world のURLが想定と異なります。期待=%s 実際=%s", want.URL, link.URL)
+			}
+			found = true
+			break
+		}
+	}
+
+	if !found {
 		t.Fatal("bbc/world が見つかりません")
-	}
-
-	want := "https://feeds.bbci.co.uk/news/world/rss.xml"
-	if url != want {
-		t.Fatalf("bbc/world のURLが想定と異なります。期待=%s 実際=%s", want, url)
 	}
 }
