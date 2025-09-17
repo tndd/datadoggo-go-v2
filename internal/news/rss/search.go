@@ -2,13 +2,15 @@ package rss
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"runtime"
 	"sort"
 	"strings"
+
+	"datadoggo-go-v2/internal/infra"
 )
 
 var rssLinkFilePath = defaultRssLinkFilePath()
@@ -50,13 +52,12 @@ func loadRssLinkMap(filePath string) (RssLinkMap, error) {
 	}
 
 	normalizedPath := filepath.Clean(filePath)
-	file, err := os.Open(normalizedPath)
+	content, err := infra.LoadFile(normalizedPath)
 	if err != nil {
 		return nil, fmt.Errorf("RSSリンクファイルの読み込みに失敗: %w", err)
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(bytes.NewReader(content))
 	result := make(RssLinkMap)
 	var currentGroup string
 	lineNumber := 0
