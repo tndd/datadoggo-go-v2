@@ -1,4 +1,4 @@
-package infra
+package file
 
 import "testing"
 
@@ -7,10 +7,11 @@ import "testing"
 // 観点:
 // - 正常に読み込める
 // - 特定エントリの値が期待通りである
+// - 解析対象は testdata 配下の仮データを使用し、実運用データに依存しない
 func TestLoadGroupedStringEntries(t *testing.T) {
 	t.Parallel()
 
-	entries, err := LoadGroupedStringEntries("internal/news/rss/link.yml")
+	entries, err := LoadGroupedStringEntries("internal/infra/file/testdata/mock.yml")
 	if err != nil {
 		t.Fatalf("LoadGroupedStringEntries でエラー: %v", err)
 	}

@@ -1,4 +1,4 @@
-package infra
+package file
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
+    "strings"
 )
 
 const maxCallerDepth = 16
@@ -49,10 +49,10 @@ func resolveFromCaller(relative string) (string, error) {
 			break
 		}
 
-		// file.go内部からの呼び出しはスキップする
-		if strings.HasSuffix(callerFile, "internal/infra/file.go") {
-			continue
-		}
+        // 自身（このパッケージ）の内部からの呼び出しはスキップする
+        if strings.HasSuffix(callerFile, "internal/infra/file/file.go") {
+            continue
+        }
 
 		baseDir := filepath.Dir(callerFile)
 		candidate := filepath.Join(baseDir, relative)

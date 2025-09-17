@@ -1,11 +1,11 @@
 package rss
 
 import (
-	"errors"
-	"fmt"
-	"sort"
+    "errors"
+    "fmt"
+    "sort"
 
-	"datadoggo-go-v2/internal/infra"
+    infrafile "datadoggo-go-v2/internal/infra/file"
 )
 
 const rssLinkFilePath = "./link.yml"
@@ -44,7 +44,7 @@ func LoadRssLinks(filePath string) ([]RssLink, error) {
 		return nil, errors.New("ファイルパスが空です")
 	}
 
-	entries, err := infra.LoadGroupedStringEntries(filePath)
+    entries, err := infrafile.LoadGroupedStringEntries(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("RSSリンクファイルの読み込みに失敗: %w", err)
 	}
