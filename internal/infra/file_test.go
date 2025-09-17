@@ -10,7 +10,7 @@ import "testing"
 func TestLoadFile(t *testing.T) {
 	t.Parallel()
 
-	t.Run("正常系", func(t *testing.T) {
+	t.Run("正常系:プロジェクトルート基準パス", func(t *testing.T) {
 		t.Parallel()
 		path := "internal/news/rss/link.yml"
 		data, err := LoadFile(path)
@@ -22,7 +22,7 @@ func TestLoadFile(t *testing.T) {
 		}
 	})
 
-	t.Run("呼び出し元相対パス", func(t *testing.T) {
+	t.Run("正常系:呼び出し元相対パス", func(t *testing.T) {
 		t.Parallel()
 		path := "./file_test.go"
 		data, err := LoadFile(path)
@@ -34,7 +34,7 @@ func TestLoadFile(t *testing.T) {
 		}
 	})
 
-	t.Run("存在しないファイル", func(t *testing.T) {
+	t.Run("異常系:存在しないファイル", func(t *testing.T) {
 		t.Parallel()
 		_, err := LoadFile("internal/infra/does_not_exist.yml")
 		if err == nil {
