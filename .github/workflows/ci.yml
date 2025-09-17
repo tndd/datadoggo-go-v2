@@ -32,8 +32,8 @@ jobs:
       - name: golangci-lintを実行
         uses: golangci/golangci-lint-action@v4
         with:
-          version: latest
-          args: --config=.golangci.yml --timeout=5m --out-format=colored-line-number
+          version: v2.4.0
+          args: --config=.golangci.yml --timeout=5m
 
       - name: テストを実行
         run: go test ./...
