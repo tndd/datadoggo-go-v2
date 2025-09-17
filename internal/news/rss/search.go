@@ -11,13 +11,13 @@ import (
 const rssLinkFilePath = "./link.yml"
 
 // SearchRssLinks はlink.ymlを読み込み、クエリ条件に一致するRSSリンクを返す。
-func SearchRssLinks(query *RssLinkQuery) ([]RssLink, error) {
+func SearchRssLinks(query *LinkQuery) ([]Link, error) {
 	links, err := LoadRssLinks(rssLinkFilePath)
 	if err != nil {
 		return nil, err
 	}
 
-	var filtered []RssLink
+	var filtered []Link
 	for _, link := range links {
 		if query != nil && query.Group != nil && link.Group != *query.Group {
 			continue
@@ -38,8 +38,8 @@ func SearchRssLinks(query *RssLinkQuery) ([]RssLink, error) {
 	return filtered, nil
 }
 
-// LoadRssLinks はYAMLファイルを読み込み、RssLinkの配列として返す。
-func LoadRssLinks(filePath string) ([]RssLink, error) {
+// LoadRssLinks はYAMLファイルを読み込み、Linkの配列として返す。
+func LoadRssLinks(filePath string) ([]Link, error) {
 	if filePath == "" {
 		return nil, errors.New("ファイルパスが空です")
 	}
@@ -49,9 +49,9 @@ func LoadRssLinks(filePath string) ([]RssLink, error) {
 		return nil, fmt.Errorf("RSSリンクファイルの読み込みに失敗: %w", err)
 	}
 
-	links := make([]RssLink, 0, len(entries))
+	links := make([]Link, 0, len(entries))
 	for _, entry := range entries {
-		links = append(links, RssLink{Group: entry.Group, Name: entry.Name, URL: entry.Value})
+		links = append(links, Link{Group: entry.Group, Name: entry.Name, URL: entry.Value})
 	}
 
 	return links, nil

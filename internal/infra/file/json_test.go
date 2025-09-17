@@ -35,7 +35,7 @@ func TestLoadGroupedStringEntriesJSON(t *testing.T) {
 	}
 
 	// 安定ソートの軽い検証（先頭と末尾の関係のみ）
-	if !(entries[0].Group <= entries[len(entries)-1].Group) {
+	if entries[0].Group > entries[len(entries)-1].Group {
 		t.Fatal("ソート順が想定外です")
 	}
 }

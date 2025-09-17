@@ -25,7 +25,7 @@ func TestSearchRssLinks(t *testing.T) {
 	t.Run("groupのみ指定", func(t *testing.T) {
 		t.Parallel()
 		group := "bbc"
-		query := RssLinkQuery{Group: &group}
+		query := LinkQuery{Group: &group}
 		links, err := SearchRssLinks(&query)
 		if err != nil {
 			t.Fatalf("SearchRssLinks(group) でエラー: %v", err)
@@ -44,7 +44,7 @@ func TestSearchRssLinks(t *testing.T) {
 		t.Parallel()
 		group := "bbc"
 		name := "world"
-		query := RssLinkQuery{Group: &group, Name: &name}
+		query := LinkQuery{Group: &group, Name: &name}
 		links, err := SearchRssLinks(&query)
 		if err != nil {
 			t.Fatalf("SearchRssLinks(group+name) でエラー: %v", err)
@@ -76,7 +76,7 @@ func TestLoadRssLinks(t *testing.T) {
 	}
 
 	var found bool
-	want := RssLink{
+	want := Link{
 		Group: "bbc",
 		Name:  "world",
 		URL:   "https://feeds.bbci.co.uk/news/world/rss.xml",

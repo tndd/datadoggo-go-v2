@@ -70,10 +70,10 @@ func readFile(absolutePath string) ([]byte, error) {
 		return nil, fmt.Errorf("ファイルのオープンに失敗しました: %w", err)
 	}
 	defer func() {
-		if closeErr := file.Close(); closeErr != nil {
-			// ログ出力などでエラーを処理することもできるが、
-			// 読み込み処理のエラーの方が重要なので、現状は無視
-		}
+		// closeErr := file.Close()
+		// ログ出力などでエラーを処理することもできるが、
+		// 読み込み処理のエラーの方が重要なので、現状は無視
+		_ = file.Close()
 	}()
 
 	data, err := io.ReadAll(file)

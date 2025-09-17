@@ -1,3 +1,4 @@
+// Package file は設定ファイルの読み込み機能を提供する。
 package file
 
 import (

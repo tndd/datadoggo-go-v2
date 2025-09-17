@@ -1,0 +1,36 @@
+repos:
+  - repo: local
+    hooks:
+      - id: golangci-lint
+        name: golangci-lint
+        description: Goコードの静的解析
+        entry: golangci-lint
+        language: system
+        pass_filenames: false
+        always_run: true
+        args: [run, --config=.golangci.yml, ./...]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        name: 行末の空白を削除
+      - id: end-of-file-fixer
+        name: ファイル末尾の改行を修正
+      - id: check-yaml
+        name: YAML構文チェック
+      - id: check-json
+        name: JSON構文チェック
+      - id: check-merge-conflict
+        name: マージコンフリクトの確認
+
+  - repo: local
+    hooks:
+      - id: go-test
+        name: go-test
+        description: Goテストの実行
+        entry: go
+        language: system
+        pass_filenames: false
+        always_run: true
+        args: [test, ./...]
