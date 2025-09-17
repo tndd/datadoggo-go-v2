@@ -23,3 +23,14 @@ repos:
         name: JSON構文チェック
       - id: check-merge-conflict
         name: マージコンフリクトの確認
+
+  - repo: local
+    hooks:
+      - id: go-test
+        name: go-test
+        description: Goテストの実行
+        entry: go
+        language: system
+        pass_filenames: false
+        always_run: true
+        args: [test, ./...]
