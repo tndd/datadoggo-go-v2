@@ -3,7 +3,7 @@
 version: 2
 
 run:
-  go: "1.25"
+  go: "1.23"
   timeout: 5m
   modules-download-mode: readonly
   tests: true
@@ -55,8 +55,6 @@ linters-settings:
         arguments:
           - allowComments
       - name: blank-imports
-  staticcheck:
-    go: "1.25"
   errcheck:
     check-type-assertions: true
     check-blank: true
