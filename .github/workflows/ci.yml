@@ -29,7 +29,7 @@ jobs:
       - name: golangci-lintを実行
         uses: golangci/golangci-lint-action@v6
         with:
-          version: latest  # 最新バージョンを指定（古いビルドを避ける）
+          version: v2.4.0  # v2.4.0を明示的に指定してv2形式をサポート
           args: --config=.golangci.yml  # .golangci.yml を使用
 
   test:
