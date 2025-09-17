@@ -12,9 +12,3 @@ type RssLinkQuery struct {
 	Group *string
 	Name  *string
 }
-
-// NewRssLinkQueryFromGroup はgroupだけを指定した検索条件を生成する。
-func NewRssLinkQueryFromGroup(group string) RssLinkQuery {
-	g := group
-	return RssLinkQuery{Group: &g}
-}
