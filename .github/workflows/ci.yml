@@ -26,6 +26,9 @@ jobs:
           go-version-file: go.mod
           check-latest: true
 
+      - name: 依存関係を取得
+        run: go mod download
+
       - name: golangci-lintを実行
         uses: golangci/golangci-lint-action@v8
         with:
