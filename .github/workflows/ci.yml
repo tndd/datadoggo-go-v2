@@ -14,6 +14,27 @@ env:
   GOFLAGS: -buildvcs=false
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: コードを取得
+        uses: actions/checkout@v4
+
+      - name: Goをセットアップ
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+
+      - name: 依存関係を取得
+        run: go mod download
+
+      - name: golangci-lintを実行
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.4.0
+          args: --config=.golangci.yml
+
   test:
     runs-on: ubuntu-latest
     steps:
