@@ -6,6 +6,7 @@ repos:
         name: golangci-lint
         description: Goコードの静的解析
         args: [--config=.golangci.yml]
+        pass_filenames: false
       - id: go-test-mod
         name: go-test
         description: Goテストの実行
