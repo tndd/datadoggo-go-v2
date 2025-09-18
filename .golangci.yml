@@ -13,7 +13,7 @@ issues:
   max-same-issues: 0
 
 linters:
-  default: none
+  default: standard
   enable:
     - errcheck
     - govet
