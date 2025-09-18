@@ -1,14 +1,14 @@
 repos:
-  - repo: local
+  - repo: https://github.com/TekWizely/pre-commit-golang
+    rev: v1.0.0-rc.2
     hooks:
       - id: golangci-lint
         name: golangci-lint
         description: Goコードの静的解析
-        entry: golangci-lint
-        language: system
-        pass_filenames: false
-        always_run: true
-        args: [run, --config=.golangci.yml, ./...]
+        args: [--config=.golangci.yml]
+      - id: go-test-mod
+        name: go-test
+        description: Goテストの実行
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -23,14 +23,3 @@ repos:
         name: JSON構文チェック
       - id: check-merge-conflict
         name: マージコンフリクトの確認
-
-  - repo: local
-    hooks:
-      - id: go-test
-        name: go-test
-        description: Goテストの実行
-        entry: go
-        language: system
-        pass_filenames: false
-        always_run: true
-        args: [test, ./...]
