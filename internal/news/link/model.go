@@ -5,10 +5,10 @@ import "time"
 
 // ArticleLink はニュース記事のリンク情報を表す。
 type ArticleLink struct {
-	URL     string    `json:"url"`
-	Title   string    `json:"title"`
-	PubDate time.Time `json:"pub_date"`
-	Source  string    `json:"source"`
+	URL     string    `db:"url" json:"url"`
+	Title   string    `db:"title" json:"title"`
+	PubDate time.Time `db:"pub_date" json:"pub_date"`
+	Source  string    `db:"source" json:"source"`
 }
 
 // ArticleLinkQuery はリンク検索時のフィルター条件を格納する。

@@ -6,7 +6,25 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/jmoiron/sqlx"
 )
+
+const baseSearchArticleLinksSQL = `
+SELECT url, title, pub_date, source
+FROM article_links
+WHERE
+    (CAST(:link_pattern AS TEXT) IS NULL OR url ILIKE '%' || CAST(:link_pattern AS TEXT) || '%')
+    AND (CAST(:pub_date_from AS TIMESTAMPTZ) IS NULL OR pub_date >= CAST(:pub_date_from AS TIMESTAMPTZ))
+    AND (CAST(:pub_date_to AS TIMESTAMPTZ) IS NULL OR pub_date <= CAST(:pub_date_to AS TIMESTAMPTZ))
+ORDER BY pub_date DESC
+`
+
+type articleLinkSearchParams struct {
+	LinkPattern sql.NullString `db:"link_pattern"`
+	PubDateFrom sql.NullTime   `db:"pub_date_from"`
+	PubDateTo   sql.NullTime   `db:"pub_date_to"`
+}
 
 // SearchArticleLinks はarticle_linksテーブルを検索し、条件に合致する記事リンクを降順で返す。
 func SearchArticleLinks(ctx context.Context, db *sql.DB, query *ArticleLinkQuery) (links []ArticleLink, err error) {
@@ -17,52 +35,45 @@ func SearchArticleLinks(ctx context.Context, db *sql.DB, query *ArticleLinkQuery
 		ctx = context.Background()
 	}
 
-	builder := strings.Builder{}
-	builder.WriteString(baseSearchArticleLinksSQL)
-	builder.WriteString(" WHERE 1=1")
+	params := buildArticleLinkSearchParams(query)
 
-	args := make([]any, 0, 3)
-
-	if query != nil {
-		if query.LinkPattern != nil && *query.LinkPattern != "" {
-			builder.WriteString(fmt.Sprintf(" AND url ILIKE '%%' || $%d || '%%'", len(args)+1))
-			args = append(args, *query.LinkPattern)
-		}
-		if query.PubDateFrom != nil {
-			builder.WriteString(fmt.Sprintf(" AND pub_date >= $%d", len(args)+1))
-			args = append(args, query.PubDateFrom.UTC())
-		}
-		if query.PubDateTo != nil {
-			builder.WriteString(fmt.Sprintf(" AND pub_date <= $%d", len(args)+1))
-			args = append(args, query.PubDateTo.UTC())
-		}
-	}
-
-	builder.WriteString(" ORDER BY pub_date DESC")
-
-	rows, err := db.QueryContext(ctx, builder.String(), args...)
+	namedQuery, args, err := sqlx.Named(baseSearchArticleLinksSQL, params)
 	if err != nil {
-		return nil, fmt.Errorf("記事リンクの検索に失敗しました: %w", err)
+		return nil, fmt.Errorf("検索条件の準備に失敗しました: %w", err)
 	}
-	defer func() {
-		if closeErr := rows.Close(); closeErr != nil && err == nil {
-			err = fmt.Errorf("記事リンクの読み出し後処理に失敗しました: %w", closeErr)
-		}
-	}()
+	queryWithBinding := sqlx.Rebind(sqlx.DOLLAR, namedQuery)
 
+	sqlxdb := sqlx.NewDb(db, "postgres")
 	links = make([]ArticleLink, 0, 16)
-	for rows.Next() {
-		var link ArticleLink
-		if scanErr := rows.Scan(&link.URL, &link.Title, &link.PubDate, &link.Source); scanErr != nil {
-			err = fmt.Errorf("記事リンクのスキャンに失敗しました: %w", scanErr)
-			return nil, err
-		}
-		links = append(links, link)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("記事リンク読み出し中にエラーが発生しました: %w", err)
+	if err := sqlxdb.SelectContext(ctx, &links, queryWithBinding, args...); err != nil {
+		return nil, fmt.Errorf("記事リンクの検索に失敗しました: %w", err)
 	}
 
 	return links, nil
+}
+
+func buildArticleLinkSearchParams(query *ArticleLinkQuery) articleLinkSearchParams {
+	params := articleLinkSearchParams{}
+	if query == nil {
+		return params
+	}
+
+	if query.LinkPattern != nil {
+		pattern := strings.TrimSpace(*query.LinkPattern)
+		if pattern != "" {
+			params.LinkPattern = sql.NullString{String: pattern, Valid: true}
+		}
+	}
+
+	if query.PubDateFrom != nil {
+		from := query.PubDateFrom.UTC()
+		params.PubDateFrom = sql.NullTime{Time: from, Valid: true}
+	}
+
+	if query.PubDateTo != nil {
+		to := query.PubDateTo.UTC()
+		params.PubDateTo = sql.NullTime{Time: to, Valid: true}
+	}
+
+	return params
 }
