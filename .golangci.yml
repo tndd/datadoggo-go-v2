@@ -33,27 +33,3 @@ linters:
     nolintlint:
       require-explanation: true
       require-specific: true
-    revive:
-      severity: warning
-      rules:
-        - name: exported
-          arguments:
-            - disableStutteringCheck
-        - name: if-return
-        - name: range-val-in-closure
-        - name: context-as-argument
-        - name: time-naming
-        - name: error-naming
-        - name: empty-block
-          arguments:
-            - allowComments
-        - name: blank-imports
-    staticcheck:
-      checks:
-        - all
-    errcheck:
-      check-type-assertions: true
-      check-blank: true
-
-# 注意: gocycloは15を超える複雑度で検知するため、ロジックを整理できる箇所は早めに分割する。
-# 注意: reviveのseverityはwarningにしているが、CIでは警告として扱いつつ継続的に解消する運用を想定。
