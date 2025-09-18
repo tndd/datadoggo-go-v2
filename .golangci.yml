@@ -24,6 +24,9 @@ linters:
     - staticcheck
     - unconvert
     - unused
+    - bodyclose
+    - sqlclosecheck
+    - noctx
   settings:
     gocyclo:
       min-complexity: 15
