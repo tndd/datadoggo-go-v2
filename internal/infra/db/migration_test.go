@@ -37,8 +37,8 @@ func TestRunMigrationsCreatesTable(t *testing.T) {
 		t.Fatalf("migrationsディレクトリの解決に失敗しました: %v", err)
 	}
 
-	if err := RunMigrations(ctx, container.DB, migrationsDir); err != nil {
-		t.Fatalf("マイグレーションに失敗しました: %v", err)
+	if migrationErr := RunMigrations(ctx, container.DB, migrationsDir); migrationErr != nil {
+		t.Fatalf("マイグレーションに失敗しました: %v", migrationErr)
 	}
 
 	_, err = container.DB.ExecContext(ctx, `
